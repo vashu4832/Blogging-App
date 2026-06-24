@@ -21,6 +21,8 @@
   "dependencies": {
     "@prisma/client": "^7.8.0",
     "@prisma/extension-accelerate": "^3.0.1",
-    "hono": "^4.12.26"
+    "@vashu4832/medium-common": "^1.0.0",
+    "hono": "^4.12.26",
+    "zod": "^4.4.3"
   }
 }

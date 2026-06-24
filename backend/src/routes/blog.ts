@@ -2,7 +2,8 @@ import { Hono } from "hono";
 import { PrismaClient } from "../../generated/prisma/client";
 import { withAccelerate } from '@prisma/extension-accelerate'
 import { verify } from "hono/jwt";
-import { pseudoRandomBytes } from "node:crypto";
+import z from 'zod'
+import { createBlogInput, updateBlogInput } from "@vashu4832/medium-common";
 
 export const blogRouter = new Hono<{
     Bindings: {
@@ -41,6 +42,16 @@ blogRouter.post("/", async (c) => {
 
     const authorId = c.get("userId");
     const body = await c.req.json();
+
+    const { success} = createBlogInput.safeParse(body);
+
+    if(!success){
+        c.status(411)
+        return c.json({
+            msg: "Inputs are not correct to create"
+        })
+    }
+
     const post = await prisma.post.create({
         data: {
             title: body.title,
@@ -60,8 +71,17 @@ blogRouter.put("/", async (c) => {
         accelerateUrl: c.env?.DATABASE_URL,
     }).$extends(withAccelerate());
 
+    const body = await c.req.json();
+    const {success} = updateBlogInput.safeParse(body);
+
+    if(!success){
+        c.status(411)
+        return c.json({
+            msg: "Inputs are not correct to update"
+        })
+    }
     try {
-        const body = await c.req.json();
+        
         const post = await prisma.post.update({
             where: {
                 id: body.id
